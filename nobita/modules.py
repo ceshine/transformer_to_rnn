@@ -162,8 +162,11 @@ class PoolingFCN(nn.Module):
         mxpool = self.pool(output, bs, True)
         if self.bidir:
             n_hid = output.size(2) // 2
+            tails = []
+            for i in range(len(input_lengths)):
+                tails.append(output[input_lengths[i]-1, i, :n_hid])
             x = torch.cat(
-                [output[input_lengths-1, :, :n_hid], output[0, :, n_hid:],
+                [torch.stack(tails), output[0, :, n_hid:],
                  mxpool, avgpool], 1)
         else:
             x = torch.cat([output[-1], mxpool, avgpool], 1)
